@@ -86,8 +86,8 @@ filename = 'word/102a.docx'
 
 # options = ['chronically', 'hysterically', 'simultaneously', 'resistantly']
 # options_type(options)
-csvname = 'answer/101a.csv'
-f = open(csvname, 'r')
-ans = f.read().split(',')
-f.close()
-print(ans)
+# csvname = 'answer/101a.csv'
+# f = open(csvname, 'r')
+# ans = f.read().split(',')
+# f.close()
+# print(ans)
