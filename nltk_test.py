@@ -78,11 +78,18 @@ def find_index(forward_index, backward_index, find_type, back=True, forward=True
 
 def substring(first, last):
 	substring = ""
-	for i in range(first, last+1, 1):
-		if i == last :
-			substring += a[i][0] 
+	i = first
+	while i <= last:
+		if i == last:
+			substring += a[i][0]
 			break
-		substring += a[i][0] + " " 
+		if (i+2 < len(a) and a[i+2][0] == 's'):
+			substring += a[i][0] + a[i+1][0] + 's ' +  a[i+3][0]
+			i += 4
+			continue
+
+		substring += a[i][0] + " "
+		i += 1
 	return substring
 
 
@@ -221,24 +228,29 @@ def VERB_target(forward_index, backward_index):
 
 def ADV_target(forward_index, backward_index):
 	search_string = ""
-	if (a[target_index+1][1] == 'VERB'):
-		backward_index += 1
-		search_string = VERB_target(forward_index, backward_index)
+	step = 1
+	while True:
+		if (a[target_index+step][1] == 'VERB'):
+			backward_index += step
+			search_string = VERB_target(forward_index, backward_index)
+			break
 
-		
-	elif (a[target_index-1][1] == 'VERB'):
-		forward_index -= 1
-		search_string = VERB_target(forward_index, backward_index)
+			
+		elif (a[target_index-step][1] == 'VERB'):
+			forward_index -= step
+			search_string = VERB_target(forward_index, backward_index)
+			break
 
-	if (a[target_index+1][1] == 'NOUN'):
-		backward_index += 1
-		search_string = NOUN_target(forward_index, backward_index)
-
-		
-	elif (a[target_index-1][1] == 'NOUN'):
-		forward_index -= 1
-		search_string = NOUN_target(forward_index, backward_index)
-
+		elif (a[target_index+step][1] == 'NOUN'):
+			backward_index += step
+			search_string = NOUN_target(forward_index, backward_index)
+			break
+			
+		elif (a[target_index-step][1] == 'NOUN'):
+			forward_index -= step
+			search_string = NOUN_target(forward_index, backward_index)
+			break
+		step += 1
 	return search_string
 
 
@@ -257,13 +269,36 @@ def compound_NOUN(NOUN_index):
 				break
 	return NOUN_index
 
-filename = 'word/105.docx'
 
-# f = open(filename.split('.')[0]+"_result.csv", "w")
+def read_answers(csvname):	
+	f = open(csvname, 'r')
+	ans = f.read().split(',')
+	f.close()
+	return ans
+
+
+def build_result_dict(results):
+	op = ['A', 'B', 'C', 'D']
+	result_dict = {}
+	for i in range(len(results)):
+		result_dict[op[i]] = results[i]
+	return result_dict
+
+file = "108a"
+filename = 'word/{}.docx'.format(file)
+ansname  = "answer/{}.csv".format(file)
+resultname = "result/{}_result.csv".format(file)
+
 string_list, options_list = read_wordfile(filename)
+answer = read_answers(ansname)
+f = open(resultname, "w")
+n_problems = len(string_list)
+acc = 0
+all_ans_acc = 0
+correct_ans_acc = 0
 # print(string_list)
 # print(options_list)
-for n in range(len(string_list)):
+for n in range(n_problems):
 	string = string_list[n]
 	options = options_list[n]
 	n_options = len(options)
@@ -320,18 +355,53 @@ for n in range(len(string_list)):
 	for i in range(n_options):
 		options_string.append(search_string.replace(blank, options[i]))
 	print(search_string)
-	print(options_string)	
-	# print(a)
-	# for option in options_string:
-	# 	f.write(option + ",")
-	# f.write("\n")	
-	# for string in options_string:
-	# 	result = google_search(string,1)
-	# 	print(result)
-	# 	f.write(str(result)+",")
-	# 	t = random.randint(3, 10)
-	# 	time.sleep(t)
+	print(options_string)
+	print(a)
+	search_count = 0
+	for option in options_string:
+		f.write(option + ",")
+	f.write("\n")
+	results = []
+	for string in options_string:
+		# result = google_search(string,1)
+		result = random.randint(1, 10)
+		results.append(result)
+		f.write(str(result)+",")
+		# if search_count % 2 == 0:
+		# 	t = random.randint(5, 15)
+		# elif search_count % 2 == 1:
+		# 	t = random.randint(20, 30)
+		# print(result, t)
+		# time.sleep(t)
+		search_count += 1
+		
 
-	# f.write("\n")
+	
+	
+
+	result_dict = build_result_dict(results)
+	ans_pred = max_key(result_dict)
+	total = sum(result_dict.values())
+	acc_pr = 0
+	if total != 0 :
+		acc_pr = result_dict[answer[n]] / total
+	all_ans_acc += acc_pr	
+
+	if ans_pred == answer[n]:
+		acc += 1
+		correct_ans_acc += acc_pr
+		f.write("Y,")
+	else:
+		f.write("N,")
+
+	f.write("\n")
 	print()
-# f.close()
+
+
+print("accuracy: %f  %d/%d" % (acc / n_problems, acc, n_problems))
+print("all_ans_acc: %f" % (all_ans_acc / n_problems))
+print("correct_ans_acc: %f" % (correct_ans_acc / acc))
+f.write("accuracy,{}\n" .format(acc / n_problems))
+f.write("all_ans_acc,{}\n" .format(all_ans_acc / n_problems))
+f.write("correct_ans_acc,{}\n" .format(correct_ans_acc / acc))
+f.close()

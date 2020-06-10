@@ -86,8 +86,67 @@ filename = 'word/102a.docx'
 
 # options = ['chronically', 'hysterically', 'simultaneously', 'resistantly']
 # options_type(options)
-# csvname = 'answer/101a.csv'
-# f = open(csvname, 'r')
-# ans = f.read().split(',')
-# f.close()
-# print(ans)
+
+
+def read_answers(csvname):	
+	f = open(csvname, 'r')
+	ans = f.read().split(',')
+	f.close()
+	return ans
+csvname = 'answer/101.csv'
+answer = read_answers(csvname)
+# print()
+op = ['A', 'B', 'C', 'D']
+result = [2, 3, 3, 4]
+result_dict = {}
+acc = 0
+# for ans in answer:	
+# 	for i in range(4):
+# 		result_dict[op[i]] = random.randint(1,4)
+# 	print(max_key(result_dict), ans)
+# 	if max_key(result_dict) == ans:
+# 		acc += 1
+
+# print(acc)
+
+def build_result_dict(results):
+	op = ['A', 'B', 'C', 'D']
+	result_dict = {}
+	for i in range(len(results)):
+		result_dict[op[i]] = results[i]
+	return result_dict
+# print (result_dict(result))
+# result_dict = build_result_dict(result)
+# def max_acc(dic):
+# 	total = sum(dic.values())
+# 	if total == 0:
+# 		return 0
+
+# 	acc = dic[max_key(dic)] / total
+# 	return acc
+# print(max_acc(result_dict))
+acc = 0
+all_ans_acc = 0
+correct_ans_acc = 0
+f = open('human.txt', 'r')
+lines = f.readlines()
+f.close()
+n_problems = len(lines)
+for line in lines:
+	s = line.split(",")
+	results = [int(s[2]), int(s[3]), int(s[4]), int(s[5].rstrip())]
+	result_dict = build_result_dict(results)
+	ans_pred = max_key(result_dict)
+	total = sum(result_dict.values())
+	acc_pr = 0
+	if total != 0 :
+		acc_pr = result_dict[s[1]] / total
+	all_ans_acc += acc_pr
+	if s[0] == s[1]:
+		acc += 1
+		correct_ans_acc += acc_pr
+	
+	# print(s)
+print("accuracy: %f  %d/%d" % (acc / n_problems, acc, n_problems))
+print("all_ans_acc: %f" % (all_ans_acc / n_problems))
+print("correct_ans_acc: %f" % (correct_ans_acc / acc))
