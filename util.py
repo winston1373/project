@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from nltk.tag import pos_tag
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet as wn
@@ -78,7 +77,6 @@ def find_index(forward_index, backward_index, find_type, back=True, forward=True
 	if type_index == -1:
 		return stop_index
 	return type_index
-
 
 def substring(first, last):
 	substring = ""
@@ -285,104 +283,8 @@ def read_answers(csvname):
 
 
 def build_result_dict(results):
-	op = ['A', 'B', 'C', 'D', 'E', 'F']
+	op = ['A', 'B', 'C', 'D']
 	result_dict = {}
 	for i in range(len(results)):
 		result_dict[op[i]] = results[i]
 	return result_dict
-
-
-
-
-
-
-
-string = input("string:")
-blank = "XX"
-n_options = int(input("Number of options:"))
-options = []
-
-
-for i in range(n_options):
-	temp = input(str(i+1) + ":")
-	options.append(temp)
-
-
-search_string = ""
-a = pos_tag(word_tokenize(string), tagset='universal')
-for i in range(len(a)):
-	if a[i][0] == blank:
-		target_index = i
-
-
-target_type = options_type(options)
-print("type:", target_type)
-a[target_index] = (blank, target_type)
-
-forward_index = target_index-1
-backward_index = target_index+1
-
-VERB_index = target_index
-NOUN_index = target_index
-ADJ_index = target_index
-MARKS = [',', '.', ';']
-BeVERB = ['is', 'am', 'are', 'was', 'were']
-
-
-
-
-if a[target_index][1] == 'ADJ':
-	search_string = ADJ_target(forward_index, backward_index)
-
-elif a[target_index][1] == 'NOUN':
-	search_string = NOUN_target(forward_index, backward_index)
-
-
-elif a[target_index][1] == 'VERB':
-	search_string = VERB_target(forward_index, backward_index)
-
-elif a[target_index][1] == 'ADV':
-	search_string = ADV_target(forward_index, backward_index)
-	
-
-
-options_string = []
-for i in range(n_options):
-	options_string.append(search_string.replace(blank, options[i]))
-print(search_string)
-print(options_string)
-print(a)
-search_count = 0
-
-results = []
-for string in options_string:
-	# result = google_search(string,1)
-	result = random.randint(1, 10)
-	results.append(result)
-	# f.write(str(result)+",")
-	# if search_count % 2 == 0:
-	# 	t = random.randint(5, 15)
-	# elif search_count % 2 == 1:
-	# 	t = random.randint(20, 30)
-	# print(result)
-	# time.sleep(1)
-	search_count += 1
-	
-
-
-
-
-result_dict = build_result_dict(results)
-ans_pred = max_key(result_dict)
-total = sum(result_dict.values())
-
-if total != 0 :
-	for i in range(n_options):
-		print("%s: %f%s(%d/%d)" % (options[i], results[i] /total * 100, '%', results[i], total))
-
-
-
-
-
-
-

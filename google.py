@@ -1,6 +1,6 @@
 import requests       #引入requests模組
 from lxml import etree
-
+import time
 #import xpath
 #import xml.etree.ElementTree as ET
 #import etree
@@ -44,6 +44,8 @@ def google_search(string, choice):
     response = requests.get(url, headers=headers)
 
     html = response.text
+
+    # print(response.text)
     page = etree.HTML(html)
     num = -1 
     if html.find("did not match any documents") > 0 or html.find("No results found for") > 0:
@@ -67,6 +69,12 @@ def google_search(string, choice):
 
     return num
 
-print(google_search("person is inherently entitled", 1))
-print(google_search("is a water resource", 1))
+re = google_search("person is inherently entitled", 1)
+sec = 0
+while re == -1:
+    print(sec)
+    sec += 1
+    time.sleep(1)
+    re = google_search("person is inherently entitled", 1)
+# print(google_search("is a water resource", 1))
 

@@ -45,6 +45,10 @@ def find_index(forward_index, backward_index, find_type, back=True, forward=True
 	forward_move = forward
 	stop_index = -1
 	type_index = -1
+	find_type_list = []
+	find_type_list.append(find_type)
+	if find_type == 'NOUN':
+		find_type_list.append('PRON')
 	while(forward_index >= 0 or backward_index < len(a)):
 
 			if (forward_index >= 0 and 
@@ -53,7 +57,7 @@ def find_index(forward_index, backward_index, find_type, back=True, forward=True
 				if(a[forward_index][0] in MARKS):
 					stop_index = forward_index + 1
 					forward_move = False
-				if a[forward_index][1] == find_type:
+				if a[forward_index][1] in find_type_list:
 					# print("f",a[forward_index])
 					type_index = forward_index
 					break;
@@ -64,7 +68,7 @@ def find_index(forward_index, backward_index, find_type, back=True, forward=True
 				if(a[backward_index][0] in MARKS):
 					stop_index = backward_index - 1
 					backward_move = False
-				if (a[backward_index][1] == find_type):
+				if (a[backward_index][1] in find_type_list):
 					# print("b",a[backward_index])
 					type_index = backward_index
 					break
@@ -74,7 +78,6 @@ def find_index(forward_index, backward_index, find_type, back=True, forward=True
 	if type_index == -1:
 		return stop_index
 	return type_index
-
 
 def substring(first, last):
 	substring = ""
@@ -230,19 +233,22 @@ def ADV_target(forward_index, backward_index):
 	search_string = ""
 	step = 1
 	while True:
-		if (a[target_index+step][1] == 'VERB'):
+		if (a[target_index+step][1] == 'VERB' and a[target_index+step][1] not in BeVERB):
 			backward_index += step
 			search_string = VERB_target(forward_index, backward_index)
 			break
 
 			
-		elif (a[target_index-step][1] == 'VERB'):
+		elif (a[target_index-step][1] == 'VERB'and a[target_index-step][0] not in BeVERB):
 			forward_index -= step
+
+			
 			search_string = VERB_target(forward_index, backward_index)
 			break
 
 		elif (a[target_index+step][1] == 'NOUN'):
 			backward_index += step
+			print(a[target_index-step][1])
 			search_string = NOUN_target(forward_index, backward_index)
 			break
 			
@@ -284,7 +290,7 @@ def build_result_dict(results):
 		result_dict[op[i]] = results[i]
 	return result_dict
 
-file = "108a"
+file = "101"
 filename = 'word/{}.docx'.format(file)
 ansname  = "answer/{}.csv".format(file)
 resultname = "result/{}_result.csv".format(file)
@@ -363,16 +369,16 @@ for n in range(n_problems):
 	f.write("\n")
 	results = []
 	for string in options_string:
-		# result = google_search(string,1)
-		result = random.randint(1, 10)
+		result = google_search(string,1)
+		# result = random.randint(1, 10)
 		results.append(result)
 		f.write(str(result)+",")
 		# if search_count % 2 == 0:
 		# 	t = random.randint(5, 15)
 		# elif search_count % 2 == 1:
 		# 	t = random.randint(20, 30)
-		# print(result, t)
-		# time.sleep(t)
+		print(result)
+		time.sleep(1)
 		search_count += 1
 		
 
@@ -387,7 +393,7 @@ for n in range(n_problems):
 		acc_pr = result_dict[answer[n]] / total
 	all_ans_acc += acc_pr	
 
-	if ans_pred == answer[n]:
+	if ans_pred == answer[n] and total != 0:
 		acc += 1
 		correct_ans_acc += acc_pr
 		f.write("Y,")
@@ -401,7 +407,12 @@ for n in range(n_problems):
 print("accuracy: %f  %d/%d" % (acc / n_problems, acc, n_problems))
 print("all_ans_acc: %f" % (all_ans_acc / n_problems))
 print("correct_ans_acc: %f" % (correct_ans_acc / acc))
-f.write("accuracy,{}\n" .format(acc / n_problems))
+f.write("accuracy,%f,%d,%d\n" % (acc / n_problems, acc, n_problems))
 f.write("all_ans_acc,{}\n" .format(all_ans_acc / n_problems))
 f.write("correct_ans_acc,{}\n" .format(correct_ans_acc / acc))
 f.close()
+
+# f = open("result/all.csv", "w")
+# f.write("n_problems,acc_problems,all_ans_acc,correct_ans_acc,\n")
+# f.write("%d,%d,%f,%f,\n" % (n_problems, acc, all_ans_acc, correct_ans_acc))
+# f.close()
